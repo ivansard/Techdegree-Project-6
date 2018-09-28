@@ -1,0 +1,24 @@
+{
+  "name": "techdegree-project-6",
+  "version": "1.0.0",
+  "description": "My sixth techdegree project",
+  "main": "scraper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivansard/Techdegree-Project-6.git"
+  },
+  "author": "Ivan Sardelic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ivansard/Techdegree-Project-6/issues"
+  },
+  "homepage": "https://github.com/ivansard/Techdegree-Project-6#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  }
+}
