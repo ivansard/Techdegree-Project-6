@@ -24,12 +24,50 @@ const options = {
 
 rp(options)
 	.then(($) => {
+		//Get the URL for every shirt into the URL array
 		const $shirtLinks = $('.products').find('li').find('a');
 		$shirtLinks.each((index, element) => {
 			
 			urls[index] = $(element).attr('href');
 			console.log(urls[index]);
-		})
+		});
+
+		// The scraper should get the price, title, url and image url from the product page and save this information into a CSV file.
+
+		for(let i = 0; i < urls.length; i++){
+			let optionsII = {
+				url: 'http://shirts4mike.com/' + urls[i],
+				json: true,
+				transform: function(body){
+					return cheerio.load(body);
+				}
+			}
+			rp(optionsII)
+				.then(($) => {
+					const shirtDetails = $('.shirt-details h1').text();
+					const price = shirtDetails.split(' ')[0].trim();
+
+					const breadcrumb = $('.breadcrumb').text();
+					const title = breadcrumb.split('>')[1].trim();
+
+					const imageUrl = $('.shirt-picture img').attr('src');
+					const siteUrl = optionsII.url;
+
+
+
+					console.log(title);
+					console.log(price);
+					console.log(imageUrl);
+					console.log(siteUrl);
+				})
+				.catch((error) => {
+					console.log(error);
+				})
+		}
+			
+		
+
+
 
 	})
 	.catch(error => {
