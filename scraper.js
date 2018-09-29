@@ -1,9 +1,11 @@
 const cheerio = require('cheerio');
 const rp = require('request-promise');
 const fs = require('fs');
+const csvWriterModule = require('csv-writer');
 
 const tShirts = [];
 const urls = [];
+const today = new Date();
 
 //Program your scraper to check for a folder called ‘data’. 
 //If the folder doesn’t exist, the scraper should create one. If the folder does exist, the scraper should do nothing.
@@ -51,19 +53,40 @@ rp(options)
 					const title = breadcrumb.split('>')[1].trim();
 
 					const imageUrl = $('.shirt-picture img').attr('src');
-					const siteUrl = optionsII.url;
+					const pageUrl = optionsII.url;
 
+					const tShirt = {
+						title: title,
+						price: price,
+						imageUrl: imageUrl,
+						pageUrl: pageUrl
+						timeOfEntry: new Date().getTime();
+					};
 
+					tShirts.push(tShirt);
 
-					console.log(title);
-					console.log(price);
-					console.log(imageUrl);
-					console.log(siteUrl);
 				})
 				.catch((error) => {
 					console.log(error);
 				})
 		}
+
+			const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+			const csvWriter = createCsvWriter({
+			    path: `${today.getFullYear()}/${today.getMonth()}/${today.getDate()}.csv`,
+			    header: [
+			        {id: 'title', title: 'TITLE'},
+			        {id: 'price', title: 'PRICE'},
+			        {id: 'imageUrl', title: 'IMAGE URL'},
+			        {id: 'pageUrl', title: 'WEBPAGE URL'}
+			    ]
+			});
+
+			 
+			csvWriter.writeRecords(tShirts)       // returns a promise
+			    .then(() => {
+			        console.log('...Done');
+		    });
 			
 		
 
