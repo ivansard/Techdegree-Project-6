@@ -10,26 +10,29 @@ const today = new Date();
 
 const currentDate = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
 
+const entryPoint = 'http://shirts4mike.com/shirts.php';
+
 const csvTableHeaders = ['Title', 'Price', 'Image URL', 'URL', 'Time of Entry'];
 const Json2csvParser = require('json2csv').Parser;
 
-//Program your scraper to check for a folder called ‘data’. 
-//If the folder doesn’t exist, the scraper should create one. If the folder does exist, the scraper should do nothing.
-
-if(!fs.existsSync('./data')){
+//Function which creates the data folder
+function createDataFolder(){
+	if(!fs.existsSync('./data')){
 	fs.mkdirSync('./data');
+	}
 }
-//Enter http://shirts4mike.com/shirts.php as single entry point to scrape information for 8 tee-shirts from the site,
-//
 
+
+//Making a call towards the entry point
 const options = {
-	url: 'http://shirts4mike.com/shirts.php',
+	url: entryPoint,
 	json: true,
 	transform: function(body){
 		return cheerio.load(body);
 	}
 }
 
+//Obtaining the urls for further search
 rp(options)
 	.then(($) => {
 		//Get the URL for every shirt into the URL array
@@ -42,10 +45,10 @@ rp(options)
 		getShirtDetailsAndWriteToCsv();		
 	})
 	.catch(error => {
-		console.log(error);
+		logError(error);
 	})
 
-
+//Function that synchronously goes through all urls to obtain the shirt data
 function getShirtDetailsAndWriteToCsv(){
 		let i = 0;
 		function next(){
@@ -70,6 +73,7 @@ function getShirtDetailsAndWriteToCsv(){
 						const imageUrl = $('.shirt-picture img').attr('src');
 						const pageUrl = options.url;
 
+						//Creating the shirt object and pushing it into the shirt array
 						let tShirt = {
 							title: title,
 							price: price,
@@ -83,9 +87,11 @@ function getShirtDetailsAndWriteToCsv(){
 						return next();
 					})
 					.catch(error => {
-						console.error(error.message);
+						logError(error);
 					})
 			} else {
+				//Creating the data folder and writing the requested csv file
+				createDataFolder();
 				writeToCsvFile(tShirts);
 			}
 		}
@@ -94,22 +100,20 @@ function getShirtDetailsAndWriteToCsv(){
 }			
 
 function writeToCsvFile(data){
-	console.log('Im here');
 	try {
 	  const parser = new Json2csvParser({csvTableHeaders});
 	  const csvData = parser.parse(data);
 	  
-	  fs.writeFileSync(`./data/n/${currentDate}.csv`, csvData);
+	  fs.writeFileSync(`./data/${currentDate}.csv`, csvData);
 	  console.log('Successfuly written to file!');
-	} catch (err) {		
-	  logError(err);
+	} catch (error) {		
+		logError(error);
 	}
 }
 
 function logError(error){
-	fs.appendFile('./scraper-error.log', '\r\n' + `[${today.toString()}] ${error.message} ` + '\return\n', function(err){
+	fs.appendFile('./scraper-error.log', '\r\n' + `[${today.toString()}] ${error.message} ` + '\r\n', function(err){
 		if(err) throw err;
-		console.log('\n' + `[${today.toString()}] ${error.message} ` + '\n');
 		console.log('Written to error log file');
 		});
 }
