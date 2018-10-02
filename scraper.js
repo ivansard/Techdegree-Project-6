@@ -45,7 +45,7 @@ rp(options)
 		getShirtDetailsAndWriteToCsv();		
 	})
 	.catch(error => {
-		logError(error);
+		logError(error, "There’s been a 404 error. Cannot connect to http://shirts4mike.com.");
 	})
 
 //Function that synchronously goes through all urls to obtain the shirt data
@@ -103,6 +103,8 @@ function writeToCsvFile(data){
 	try {
 	  const parser = new Json2csvParser({csvTableHeaders});
 	  const csvData = parser.parse(data);
+
+	  console.log(parser.opts.csvTableHeaders)
 	  
 	  fs.writeFileSync(`./data/${currentDate}.csv`, csvData);
 	  console.log('Successfuly written to file!');
@@ -111,9 +113,10 @@ function writeToCsvFile(data){
 	}
 }
 
-function logError(error){
+function logError(error, message = error.message){
 	fs.appendFile('./scraper-error.log', '\r\n' + `[${today.toString()}] ${error.message} ` + '\r\n', function(err){
 		if(err) throw err;
+		console.error(message);
 		console.log('Written to error log file');
 		});
 }
