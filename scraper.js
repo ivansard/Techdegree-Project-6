@@ -8,7 +8,7 @@ const tShirts = [];
 const urls = [];
 const today = new Date();
 
-const currentDate = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
+const currentDate = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`;
 
 const entryPoint = 'http://shirts4mike.com/shirts.php';
 
@@ -16,8 +16,9 @@ const csvTableHeaders = ['Title', 'Price', 'Image URL', 'URL', 'Time of Entry'];
 const Json2csvParser = require('json2csv').Parser;
 
 //Function which creates the data folder
-function createDataFolder(){
+function createDataFolder(){	
 	if(!fs.existsSync('./data')){
+	console.log('Creating data folder');
 	fs.mkdirSync('./data');
 	}
 }
@@ -37,11 +38,13 @@ rp(options)
 	.then(($) => {
 		//Get the URL for every shirt into the URL array
 		const $shirtLinks = $('.products').find('li').find('a');
+
+		console.log('Obtaining URLs');
 		$shirtLinks.each((index, element) => {
-			
 			urls[index] = $(element).attr('href');
-			console.log(urls[index]);
 		});
+
+		console.log('URLs obtained');
 		getShirtDetailsAndWriteToCsv();		
 	})
 	.catch(error => {
@@ -50,9 +53,9 @@ rp(options)
 
 //Function that synchronously goes through all urls to obtain the shirt data
 function getShirtDetailsAndWriteToCsv(){
+		console.log('Retrieving info for shirts')
 		let i = 0;
 		function next(){
-			console.log(i);
 			if(i < urls.length){
 				let options = {
 					url : 'http://shirts4mike.com/' + urls[i],
@@ -64,6 +67,7 @@ function getShirtDetailsAndWriteToCsv(){
 
 				rp(options)
 					.then(($) => {
+						console.log(`Retrieving info for shirt # ${i+1}`);	
 						const shirtDetails = $('.shirt-details h1').text();
 						const price = shirtDetails.split(' ')[0].trim();
 
@@ -91,6 +95,7 @@ function getShirtDetailsAndWriteToCsv(){
 					})
 			} else {
 				//Creating the data folder and writing the requested csv file
+				console.log('Shirt info retrieved');
 				createDataFolder();
 				writeToCsvFile(tShirts);
 			}
